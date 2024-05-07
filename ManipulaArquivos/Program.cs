@@ -1,50 +1,86 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using ManipulaArquivos;
 
-//string path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)+"\\Dados\\";
-string path = @"C:\Dados\";
-string file = "arquivo.txt";
+string path = @"C:\DadosEstoque\";
+string file = "products.txt";
 
-if(!Directory.Exists(path))
-    Directory.CreateDirectory(path);
+Console.WriteLine(">>> CADASTRO DE PRODUTOS<<<");
 
-if (File.Exists(path + file))
+Product CreateProduct()
 {
-    StreamReader sr = new StreamReader(path+file);
-    string s = sr.ReadToEnd();
-    Console.Clear();
-    Console.WriteLine(s);
-    sr.Close();
+    Console.WriteLine("informe um id:");
+    int id = int.Parse(Console.ReadLine());
 
-    s += "\n";
-    s += Console.ReadLine();
+    Console.WriteLine("Informe a descrição do produto:");
+    string description = Console.ReadLine();
 
-    StreamWriter sw = new(path + file);
-    sw.WriteLine(s);
-    sw.Close();
+    Console.WriteLine("Informe o preço do produto:");
+    double price = double.Parse(Console.ReadLine());
 
-    Console.Clear();
-    Console.WriteLine("Conteudo do arquivo:");
-    StreamReader sr2 = new(path + file);
-    Console.WriteLine(sr2.ReadToEnd());
-    sr2.Close();
+    Console.WriteLine("Informe a quantidade disponível:");
+    int quantity = int.Parse(Console.ReadLine());
+
+    return new Product(id, description, price, quantity);
 }
 
+List<Product> products = new();
 
-//StreamWriter sw = new(path+file);
+//products.Add(CreateProduct());
 
-//Console.WriteLine("Informe seu nome:");
-//string s = Console.ReadLine();
+void ShowAll(List<Product> recievedList)
+{
+    foreach (Product product in recievedList)
+    {
+        Console.WriteLine(product.ToString());
+    }
+}
 
-//sw.WriteLine(s);
-//Console.WriteLine("Informe seu email:");
-//s = Console.ReadLine();
+bool CheckIfExists(string p, string f)
+{
+    if (!Directory.Exists(p))
+    {
+        Directory.CreateDirectory(p);
+    }
+    if (!File.Exists(p + f))
+    {
+        File.Create(p + f);
+    }
 
-//sw.WriteLine(s);
-//sw.Close();
+    return true;
+}
 
-//StreamReader sr = new(path+file);
+void SaveFile(List<Product> l, string p, string f)
+{
+    if (CheckIfExists(p, f))
+    {
+        StreamWriter sw = new(p + f);
 
-//Console.Clear();
-//Console.WriteLine(sr.ReadToEnd());
-//sr.Close();
+        foreach (var item in l)
+        {
+            sw.WriteLine(item.ToString());
+        }
+
+        sw.Close();
+    }
+
+}
+
+//SaveFile(products, path, file);
+
+List<Product> LoadFile(string p, string f)
+{
+    List<Product> l = new();
+    if (CheckIfExists(p, f))
+    {
+        string[] data;
+
+        foreach (var linha in File.ReadAllLines(p + f))
+        {
+            data = linha.Split(";");
+            l.Add(new Product(int.Parse(data[0]), data[1], double.Parse(data[2]), int.Parse(data[3])));
+        }
+    }
+    return l;
+}
+List<Product> products2 = new(LoadFile(path, file));
+
+ShowAll(products2);
